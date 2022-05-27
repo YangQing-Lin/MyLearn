@@ -2,6 +2,8 @@
 
 ---------
 
+队列
+
 ```c++
 #include <iostream>
 #include <cstring>
@@ -20,6 +22,10 @@ int main() {
     back(); // 返回队尾元素
     pop(); // 弹出队头元素
     q = queue<int>(); // 清空队列，即重新构造一个队列
+    
+    return 0;
 }
 ```
+
+ 
 
