@@ -2,15 +2,19 @@
 
 -----------
 
-压位![压位](C:\Users\冬黎\OneDrive\图片\语法基础课\压位.png)
+压位
 
 即每个字节存八位，则只需要开 128 个字节，bitset 就是让每个字节上存八位，比正常的 bool 数组要省八倍内存
+
+<img src="https://raw.githubusercontent.com/DaoZuQieXing/Learn/main/img/语法基础课/压位.png" alt="system call" style="max-width: 70%">
 
 --------------
 
 ##### 应用场景：
 
-当我们存 10000 * 10000 的 bool 矩阵，则需要 10<sup>8</sup> 个 bool，需要大概 100 MB 的空间，但是限制空间是64MB，这时候就可以用 bitset 来存，bitset 可以省八倍空间，即只需要 12 MB 的空间就可以了![压位应用场景](C:\Users\冬黎\OneDrive\图片\语法基础课\压位应用场景.png)
+当我们存 10000 * 10000 的 bool 矩阵，则需要 10<sup>8</sup> 个 bool，需要大概 100 MB 的空间，但是限制空间是64MB，这时候就可以用 bitset 来存，bitset 可以省八倍空间，即只需要 12 MB 的空间就可以了
+
+<img src="https://raw.githubusercontent.com/DaoZuQieXing/Learn/main/img/语法基础课/压位应用场景.png" alt="system call" style="max-width: 70%">
 
 -----------
 
