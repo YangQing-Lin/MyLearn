@@ -12,5 +12,7 @@
 
 ------------
 
-##### 宽搜的基本框架![宽搜的基本框架](C:\Users\冬黎\OneDrive\图片\算法基础课\算法基础课第三讲\宽搜的基本框架.png)
+##### 宽搜的基本框架
+
+<img src="https://raw.githubusercontent.com/DaoZuQieXing/Learn/main/img/算法基础课/算法基础课第三讲：搜索与图论/宽搜的基本框架.png" style="max-width: 70%">
 

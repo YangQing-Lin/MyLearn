@@ -11,5 +11,7 @@
 1. 先把起点放到队列中
 2. 当队列不空的时候，意味着有待更新的点
 3. 弹出队头 t，用 t 来更新他的后继的点的距离
-4. 把 t 的后继加入队列![spfa算法思路](C:\Users\冬黎\OneDrive\图片\算法基础课\算法基础课第三讲\spfa算法思路.png)
+4. 把 t 的后继加入队列
+
+<img src="https://raw.githubusercontent.com/DaoZuQieXing/Learn/main/img/算法基础课/算法基础课第三讲：搜索与图论/spfa算法思路.png" alt="system call" style="max-width: 70%">
 

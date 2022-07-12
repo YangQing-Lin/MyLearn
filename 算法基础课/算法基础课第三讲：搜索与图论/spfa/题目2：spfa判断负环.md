@@ -4,7 +4,9 @@
 
 开一个数组表示最短路上的边数，在更新距离的时候，同时更新这个边数
 
-当这个边数大于或等于 n，由抽屉原理可知，图中含有环，又因为是最短路上的环，所以这个环的权值一定是负的，即负环![spfa判断负环](C:\Users\冬黎\OneDrive\图片\算法基础课\算法基础课第三讲\spfa判断负环.png)
+当这个边数大于或等于 n，由抽屉原理可知，图中含有环，又因为是最短路上的环，所以这个环的权值一定是负的，即负环
+
+<img src="https://raw.githubusercontent.com/DaoZuQieXing/Learn/main/img/算法基础课/算法基础课第三讲：搜索与图论/spfa判断负环.png" alt="system call" style="max-width: 70%">
 
 ------------------
 

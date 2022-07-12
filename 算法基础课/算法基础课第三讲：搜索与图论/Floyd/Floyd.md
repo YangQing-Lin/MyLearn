@@ -12,5 +12,5 @@
 2. 三重循环
 3. 循环之后，```d[i][j]``` 存的是 i 到 j 的最短距离 
 
-![floyd算法](C:\Users\冬黎\OneDrive\图片\算法基础课\算法基础课第三讲\floyd算法.png)
+<img src="https://raw.githubusercontent.com/DaoZuQieXing/Learn/main/img/算法基础课/算法基础课第三讲：搜索与图论/floyd算法.png" alt="system call" style="max-width: 70%">
 
