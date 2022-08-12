@@ -104,8 +104,11 @@
 
      那么该子集中方案的最大值，也就是`f(i - 1, j - Vi)` + Wi
 
-   则`f(i, j)`的值为：Max（`f(i - 1, j)`，`f(i - 1, j - Vi)` + Wi）
-
+   最终得到`f(i, j)`的公式
+$$
+   f(i, j) = max(f(i - 1, j), f(i - 1, j - Vi) + Wi)
+   $$
+   
    ##### 注意：当`j < Vi`时，第二个子集不可能有物品`i`，那么第二个子集是空的，所以实际计算时需要特判一下
 
 ##### 分析后朴素版代码：
@@ -188,6 +191,129 @@ public class Main {
 
         for (int i = 1; i <= n; i ++) {
             for (int j = m; j >= v[i]; j --) {
+                f[j] = Math.max(f[j], f[j - v[i]] + w[i]);
+            }
+        }
+
+        System.out.println(f[m]);
+    }
+}
+```
+
+--------------------
+
+#### <a href="https://www.acwing.com/problem/content/3/)">完全背包问题</a>
+
+- ##### 状态表示，化零为整
+
+  - 集合：所有只从前`i`个物品里选，总体积不超过`j`的方案的集合，`f（i, j）`
+  - 属性：集合里所有方案的总价值的最大值
+
+- ##### 状态计算，化整为零
+
+  - 划分子集
+
+    通过选`i`物品的个数进行划分，
+
+    第一个子集选零个`i`物品，第二个子集选一个`i`物品，依次类推，知道选出的体积大于集合限制体积为止
+
+    不重不漏
+
+  - 计算每一个子集的值
+
+    从定义出发，对于第一个子集，因为包含于`f(i, j)`集合，所以一定是在`1 ~ i`物品里选，且总体积不超过`j`，又因为第一个子集选零个`i`物品，即不选`i`物品
+
+    所以对于第一个子集，相当于在`1 ~ i-1`物品里选，且总体积不超过`j`，即`f(i - 1, j )`
+
+    ###### 对于剩下的子集，都是类似上述的分析过程，这里不失一般性，考虑其中的某一个
+
+    例如考虑包含了`k`个`i`物品的方案的子集，该子集中的方案都是包含了`k`个`i`物品，且其他随便选的方案，要求该子集的最大值，也即是这些方案的最大值
+
+    这里先把所有方案都分成两部分：随便选部分和固定部分（选`k`个`i`物品部分），因此要让方案的值最大，就要让随便选部分最大
+
+    从定义出发，由于该子集在`f(i, j)`里，且有固定部分，所以对于随便选部分即是在`1 ~ i-1`物品里选，且总体积不超过`j - kVi`，最大值是`f(i - 1, j - kVi)`
+
+    对于包含了`k`个`i`物品的子集，其值为`f(i - 1, j - kVi)` + `kWi`
+
+  - 计算`f(i, j)`的值
+
+    所有子集的值取`Max`
+    $$
+    f(i, j) = max(f(i - 1, j), f(i - 1, j - Vi) + Wi, f(i - 1, j - 2Vi) + 2Wi, ...)
+    $$
+    将上述公式进行简化：
+
+    首先将式子里的`j`替换成`j - Vi`
+    $$
+    f(i, j - Vi) = max(f(i - 1, j - Vi), f(i - 1, j - 2Vi) + Wi, f(i - 1, j - 3Vi) + 2Wi, ...)
+    $$
+    可以发现一式和二式之间有相似的项，且相似的项之间相差`Wi`
+
+    则一式的最大值就是二式的最大值加上`Wi`，而二式的最大值是`f(i, j - Vi)`
+
+    综上所述，最终公式简化为：
+    $$
+    f(i, j) = max(f(i - 1, j), f(i, j - Vi) + Wi)
+    $$
+
+##### 朴素代码：
+
+```java
+import java.util.*;
+
+public class Main {
+
+    static int N = 1010;
+    static int[] v = new int[N];
+    static int[] w = new int[N];
+    static int[][] f = new int[N][N];
+
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        for (int i = 1; i <= n; i ++) {
+            v[i] = sc.nextInt();
+            w[i] = sc.nextInt();
+        }
+
+        for (int i = 1; i <= n; i ++) {
+            for (int j = 0; j <= m; j ++) {
+                f[i][j] = f[i - 1][j];
+                if (j >= v[i]) {
+                    f[i][j] = Math.max(f[i][j], f[i][j - v[i]] + w[i]);
+                }
+            }
+        }
+
+        System.out.println(f[n][m]);
+    }
+}
+```
+
+##### 优化代码（空间优化，代码等价变换）
+
+```java
+import java.util.*;
+
+public class Main {
+
+    static int N = 1010;
+    static int[] v = new int[N];
+    static int[] w = new int[N];
+    static int[] f = new int[N];
+
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        for (int i = 1; i <= n; i ++) {
+            v[i] = sc.nextInt();
+            w[i] = sc.nextInt();
+        }
+
+        for (int i = 1; i <= n; i ++) {
+            for (int j = v[i]; j <= m; j ++) {
                 f[j] = Math.max(f[j], f[j - v[i]] + w[i]);
             }
         }
