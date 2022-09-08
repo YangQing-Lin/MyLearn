@@ -78,7 +78,7 @@ module.exports = defineConfig({
 export class Game {
   constructor(id, AcWingOS) {
     const myappid = '#' + id;
-    myfunc(myappid);
+    myfunc(myappid, AcWingOS);
   }
 }
 ```
@@ -125,11 +125,11 @@ export class Game {
 4. 修改打包后的js文件
 
    ```js
-   const myfunc = ...myappid
+   const myfunc = ...myappid, AcWingOS
    
-   ...
+   ...将前面引入的参数AcWingOS加入全局变量里
    
-   myappid
+   myappid, AcWingOS
    ```
 
 5. 在js文件里加上主类
@@ -138,7 +138,7 @@ export class Game {
    export class Game {
      constructor(id, AcWingOS) {
        const myappid = '#' + id;
-       myfunc(myappid);
+       myfunc(myappid, AcWingOS);
      }
    }
    ```
