@@ -420,3 +420,84 @@ public class Main {
 }
 ```
 
+------------------
+
+#### <a href="https://www.acwing.com/problem/content/899/">最长公共子序列</a>
+
+##### 考虑极端情况：A序列有 n 个 a，B序列也有 n 个 a
+
+则 A 和 B 的公共子序列的个数就等于 A 的子序列的个数：2<sup>n</sup>
+
+如果暴力枚举每一种情况，显然是超时的，所以这题需要用dp优化
+
+##### 闫氏DP分析
+
+- ##### 状态表示
+
+  - 集合：所有 A[1 ~ i] 与 B[1 ~ j] 的公共子序列的集合
+  - 属性：集合里所有公共子序列的长度最大值
+
+- ##### 状态计算
+
+  - 划分子集，划分标准：子序列里有没有包含 A[i]，以及有没有包含 B[j]，不重不漏
+
+    这样就有了四种情况：
+
+    - 00，A[i] 和 B[j] 都不包含
+
+      属性是 **f(i - 1, j - 1)**
+
+    - 01，不包含 A[i]，包含 B[j]
+
+      属性是 f(i - 1, j)
+
+      :star2:**求属性的时候，可以重复，不影响结果**
+
+      对于集合 f(i - 1, j)，虽然包括了 含 B[j] 和不含 B[j] 两种情况，与 01 子集**并不是完全等价的**
+
+      但是由于集合 f(i - 1, j) 还是包含于集合 f(i, j) 的，所以并不影响求属性的结果（最大值）
+
+    - 10，包含 A[i]，不包含 B[j]
+
+      属性是 f(i, j - 1)
+
+      同理，使用集合 f(i, j - 1) 作为该子集的属性值，虽然并不等价，但是只是重复，并没有逾越集合 f(i, j)
+
+      所以依然可以用 f(i, j - 1) 作为该子集的属性值
+
+    - 11，A[i] 和 B[j] 都包含
+
+      必须满足 A[i] == B[j] 时，这个子集才会存在
+
+      属性是 **f(i - 1, j - 1) + 1**
+
+    又发现，00 子集的属性值 f(i - 1, j - 1)，一定是包含于 01 子集的属性值 f(i - 1, j)，所以也可以省略
+
+    ##### 最终只需要考虑 f(i - 1, j)，f(i, j - 1) 和 f(i - 1, j - 1)
+
+##### 题解
+
+```java
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+        String a = " " + sc.next();
+        String b = " " + sc.next();
+        int[][] f = new int[n + 1][m + 1];
+        for (int i = 1; i <= n; i ++) {
+            for (int j = 1; j <= m; j ++) {
+                f[i][j] = Math.max(f[i - 1][j], f[i][j - 1]);
+                if (a.charAt(i) == b.charAt(j)) {
+                    f[i][j] = Math.max(f[i][j], f[i - 1][j - 1] + 1);
+                }
+            }
+        }
+        System.out.println(f[n][m]);
+    }
+}
+```
+
