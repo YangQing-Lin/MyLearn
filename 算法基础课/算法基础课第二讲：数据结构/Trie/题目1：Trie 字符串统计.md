@@ -4,6 +4,8 @@
 
 ##### 题解：
 
+c++
+
 ```c++
 #include <iostream> 
 
@@ -57,6 +59,57 @@ int main() {
     }
     
     return 0;
+}
+```
+
+java
+
+```java
+import java.util.*;
+
+public class Main {
+
+    private static int N = 100010, idx = 0;
+    private static int[][] son = new int[N][26];
+    private static int[] cnt = new int[N];
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int q = sc.nextInt();
+        while (q -- > 0) {
+            String ss = sc.next();
+            String str = sc.next();
+            if (ss.equals("I")) {
+                insert(str);
+            } else {
+                System.out.println(query(str));
+            }
+        }
+    }
+
+    public static void insert(String x) {
+        int p = 0;
+        for (int i = 0; i < x.length(); i ++) {
+            int u = x.charAt(i) - 'a';
+            if (son[p][u] == 0) {
+                son[p][u] = ++ idx;
+            }
+            p = son[p][u];
+        }
+        cnt[p] ++;
+    }
+
+    public static int query(String x) {
+        int p = 0;
+        for (int i = 0; i < x.length(); i ++) {
+            int u = x.charAt(i) - 'a';
+            if (son[p][u] == 0) {
+                return 0;
+            }
+            p = son[p][u];
+        }
+        return cnt[p];
+    }
 }
 ```
 
