@@ -12,6 +12,8 @@
 
 ##### 题解：
 
+c++
+
 ```c++
 #include <iostream>
 
@@ -52,6 +54,54 @@ int main() {
     }
     
     return 0;
+}
+```
+
+java
+
+```java
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    private static int N = 100010;
+    private static int[] ne = new int[N];
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        int n = Integer.parseInt(br.readLine());
+        String p = " " + br.readLine();
+        int m = Integer.parseInt(br.readLine());
+        String s = " " + br.readLine();
+
+        // 构造next数组
+        for (int i = 2, j = 0; i <= n; i ++) {
+            while (j != 0 && p.charAt(i) != p.charAt(j + 1)) {
+                j = ne[j];
+            }
+            if (p.charAt(i) == p.charAt(j + 1)) {
+                j ++;
+            }
+            ne[i] = j;
+        }
+
+        // kmp匹配
+        for (int i = 1, j = 0; i <= m; i ++) {
+            while (j != 0 && s.charAt(i) != p.charAt(j + 1)) {
+                j = ne[j];
+            }
+            if (s.charAt(i) == p.charAt(j + 1)) {
+                j ++;
+            }
+            if (j == n) {
+                bw.write(i - n + " ");
+                j = ne[j];
+            }
+        }
+        bw.flush();
+    }
 }
 ```
 
