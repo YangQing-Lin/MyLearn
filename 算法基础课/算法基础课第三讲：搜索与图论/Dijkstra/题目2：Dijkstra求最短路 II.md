@@ -46,7 +46,7 @@ int dijkstra() {
         
         int var = t.second, distance = t.first;
         
-        if (st[var]) {
+        if (st[var]) {  // 说明是堆中的冗余备份
             continue;
         }
         else {
