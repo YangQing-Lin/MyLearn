@@ -19,7 +19,7 @@ const int N = 100010;
 int n, m;
 int h[N], e[N], ne[N], w[N], idx;
 int dist[N];
-bool st[N];
+bool st[N]; // 防止队列里存储重复的点
 
 int spfa() {
     memset(dist, 0x3f, sizeof(dist));
