@@ -1183,8 +1183,10 @@ Jack 85，Lucy 89，Rose 82，Tom 95，Jerry 78，Amy 92，Miles 76
 
 标记为❤的就是推荐使用的java客户端，包括：
 
-- Jedis和Lettuce：这两个主要是提供了Redis命令对应的API，方便我们操作Redis，而SpringDataRedis又对这两种做了抽象和封装，因此我们后期会直接以SpringDataRedis来学习。
-- Redisson：是在Redis基础上实现了分布式的可伸缩的java数据结构，例如Map.Queue等，而且支持跨进程的同步机制：Lock.Semaphore等待，比较适合用来实现特殊的功能需求。
+- **Jedis**：以Redis命令作为方法名称，学习成本低，简单实用。但是Jedis实例是线程不安全的，多线程环境下需要基于连接池来使用。
+- **Lettuce**：是基于Netty实现的，支持同步、异步和响应式编程方式，并且是线程安全的。支持Redis的哨兵模式、集群模式和管道模式。spring默认兼容。
+- Jedis和Lettuce：这两个主要是提供了Redis命令对应的API，方便我们操作Redis，而**SpringDataRedis**又对这两种做了抽象和封装，因此我们后期会直接以SpringDataRedis来学习。
+- **Redisson**：是在Redis基础上实现了分布式的可伸缩的java数据结构，例如Map，Queue等，而且支持跨进程的同步机制：Lock，Semaphore等待，比较适合用来实现特殊的功能需求。
 
 
 
@@ -1293,34 +1295,39 @@ Jedis本身是线程不安全的，并且频繁的创建和销毁连接会有性
 
 #### 5.2.1.创建Jedis的连接池
 
-- 
-
 ```java
-public class JedisConnectionFacotry {
+package org.example.jedis.utils;
 
-     private static final JedisPool jedisPool;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
-     static {
-         //配置连接池
-         JedisPoolConfig poolConfig = new JedisPoolConfig();
-         poolConfig.setMaxTotal(8);
-         poolConfig.setMaxIdle(8);
-         poolConfig.setMinIdle(0);
-         poolConfig.setMaxWaitMillis(1000);
-         //创建连接池对象
-         jedisPool = new JedisPool(poolConfig,
-                 "192.168.150.101",6379,1000,"123321");
-     }
+public class JedisConnectionFactory {
+    private static final JedisPool jedisPool;
 
-     public static Jedis getJedis(){
-          return jedisPool.getResource();
-     }
+    static {
+        // 配置连接池
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        jedisPoolConfig.setMaxTotal(8); // 最大连接数，即最多创建多少连接
+        jedisPoolConfig.setMaxIdle(8); // 最多预备连接，没有人用也会预备的连接数
+        jedisPoolConfig.setMinIdle(0); // 最小空闲连接，超过一段时间这些空闲连接都没有人用，就会被释放到参数
+        jedisPoolConfig.setMaxWaitMillis(1000); // 如果池子里没有空闲连接，最大的等待时间，超过等待时间就会报错
+
+        // 创建连接池对象
+        jedisPool = new JedisPool(jedisPoolConfig,
+                "192.168.10.8", 6379, 1000, "123456");
+    }
+
+    // 获取jedis连接
+    public static Jedis getJedis() {
+        return jedisPool.getResource();
+    }
 }
 ```
 
 **代码说明：**
 
-- 1） JedisConnectionFacotry：工厂设计模式是实际开发中非常常用的一种设计模式，我们可以使用工厂，去降低代的耦合，比如Spring中的Bean的创建，就用到了工厂设计模式
+- 1） JedisConnectionFacotry：工厂设计模式是实际开发中非常常用的一种设计模式，我们可以使用工厂，去降低代码的耦合，比如Spring中的Bean的创建，就用到了工厂设计模式
 
 - 2）静态代码块：随着类的加载而加载，确保只能执行一次，我们在加载当前工厂类的时候，就可以执行static的操作完成对 连接池的初始化
 
@@ -1454,7 +1461,7 @@ SpringBoot已经提供了对SpringDataRedis的支持，使用非常简单：
 ```yaml
 spring:
   redis:
-    host: 192.168.150.101
+    host: 192.168.10.8
     port: 6379
     password: 123321
     lettuce:
@@ -1485,7 +1492,7 @@ class RedisDemoApplicationTests {
 }
 ```
 
-**贴心小提示：SpringDataJpa使用起来非常简单，记住如下几个步骤即可**
+**贴心小提示：SpringDataRedis使用起来非常简单，记住如下几个步骤即可**
 
 SpringDataRedis的使用步骤：
 
@@ -1503,7 +1510,7 @@ RedisTemplate可以接收任意Object作为值写入Redis：
 
 
 
-只不过写入前会把Object序列化为字节形式，默认是采用JDK序列化，得到的结果是这样的：
+只不过写入前会把Object序列化为字节形式，默认是采用**JDK序列化**，得到的结果是这样的：
 
 ![](../../img/redis/5FjtWk5.png)
 
@@ -1533,15 +1540,57 @@ public class RedisConfig {
         // 创建JSON序列化工具
         GenericJackson2JsonRedisSerializer jsonRedisSerializer = 
             							new GenericJackson2JsonRedisSerializer();
-        // 设置Key的序列化
+        // 设置Key和HashKey的序列化，采用String序列化
         template.setKeySerializer(RedisSerializer.string());
         template.setHashKeySerializer(RedisSerializer.string());
-        // 设置Value的序列化
+        // 设置Value和HashKey的序列化，采用Json序列化
         template.setValueSerializer(jsonRedisSerializer);
         template.setHashValueSerializer(jsonRedisSerializer);
         // 返回
         return template;
     }
+}
+```
+
+
+
+注意要引入Jackson的依赖
+
+```xml
+<!--jackson的依赖-->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+</dependency>
+```
+
+
+
+修改测试类
+
+```java
+package com.example;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
+
+@SpringBootTest
+class SpringDataRedisDemoApplicationTests {
+
+    @Autowired // 添加类型参数
+    private RedisTemplate<String, Object> redisTemplate;
+
+    @Test
+    void contextLoads() {
+        // 写入一条String数据
+        redisTemplate.opsForValue().set("name", "Bob");
+        // 获取String数据
+        Object name = redisTemplate.opsForValue().get("name");
+        System.out.println("name = " + name);
+    }
+
 }
 ```
 
@@ -1563,13 +1612,13 @@ public class RedisConfig {
 
 ![1653054602930](../../img/redis/1653054602930.png)
 
-为了在反序列化时知道对象的类型，JSON序列化器会将类的class类型写入json结果中，存入Redis，会带来额外的内存开销。
+为了在反序列化时知道对象的类型，JSON序列化器会将类的class类型写入json结果中，存入Redis，会带来**额外的内存开销**。
 
-为了减少内存的消耗，我们可以采用手动序列化的方式，换句话说，就是不借助默认的序列化器，而是我们自己来控制序列化的动作，同时，我们只采用String的序列化器，这样，在存储value时，我们就不需要在内存中就不用多存储数据，从而节约我们的内存空间
+为了减少内存的消耗，我们可以采用手动序列化的方式，换句话说，就是不借助默认的序列化器，而是我们自己来控制序列化的动作，同时，我们**只采用String的序列化器**，这样，在存储value时，我们就不需要在内存中就不用多存储数据，从而节约我们的内存空间
 
 ![1653054744832](../../img/redis/1653054744832.png)
 
-这种用法比较普遍，因此SpringDataRedis就提供了RedisTemplate的子类：StringRedisTemplate，它的key和value的序列化方式默认就是String方式。
+这种用法比较普遍，因此SpringDataRedis就提供了RedisTemplate的子类：**StringRedisTemplate，它的key和value的序列化方式默认就是String方式**。
 
 ![](../../img/redis/zXH6Qn6.png)
 
@@ -1630,6 +1679,8 @@ RedisTemplate的两种序列化实践方案：
   * 使用StringRedisTemplate
   * 写入Redis时，手动把对象序列化为JSON
   * 读取Redis时，手动把读取到的JSON反序列化为对象
+  
+  事实上可以将json的处理封装成工具类
 
 
 ### 6.4 Hash结构操作
