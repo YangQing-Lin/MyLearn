@@ -9,7 +9,7 @@ Redis是一种键值型的NoSql数据库，这里有两个关键字：
 
 其中**键值型**，是指Redis中存储的数据都是以key.value对的形式存储，而value的形式多种多样，可以是字符串.数值.甚至json：
 
-![](../../img/redis/1652882668159.png)
+![](../../img/redis/基础篇/1652882668159.png)
 
 而NoSql则是相对于传统关系型数据库而言，有很大差异的一种数据库。
 
@@ -43,7 +43,7 @@ Redis是一种键值型的NoSql数据库，这里有两个关键字：
 
 传统关系型数据库是结构化数据，每一张表都有严格的约束信息：字段名.字段数据类型.字段约束等等信息，插入的数据必须遵守这些约束：
 
-![](../../img/redis/4tUgFo6.png)
+![](../../img/redis/基础篇/4tUgFo6.png)
 
 
 
@@ -51,17 +51,17 @@ Redis是一种键值型的NoSql数据库，这里有两个关键字：
 
 可以是键值型：
 
-![](../../img/redis/GdqOSsj.png)
+![](../../img/redis/基础篇/GdqOSsj.png)
 
 也可以是文档型：
 
-![](../../img/redis/zBBQfcc.png)
+![](../../img/redis/基础篇/zBBQfcc.png)
 
 
 
 甚至可以是图格式：
 
-![](../../img/redis/zBnKxWf.png)
+![](../../img/redis/基础篇/zBnKxWf.png)
 
 
 
@@ -69,7 +69,7 @@ Redis是一种键值型的NoSql数据库，这里有两个关键字：
 
 传统数据库的表与表之间往往存在关联，例如外键：
 
-![](../../img/redis/tXYSl5x.png)
+![](../../img/redis/基础篇/tXYSl5x.png)
 
 
 
@@ -106,7 +106,7 @@ Redis是一种键值型的NoSql数据库，这里有两个关键字：
 
 而不同的非关系数据库查询语法差异极大，五花八门各种各样。
 
-![](../../img/redis/AzaHOTF.png)
+![](../../img/redis/基础篇/AzaHOTF.png)
 
 
 
@@ -114,7 +114,7 @@ Redis是一种键值型的NoSql数据库，这里有两个关键字：
 
 传统关系型数据库能满足事务ACID的原则。
 
-![](../../img/redis/J1MqOJM.png)
+![](../../img/redis/基础篇/J1MqOJM.png)
 
 
 
@@ -126,7 +126,7 @@ Redis是一种键值型的NoSql数据库，这里有两个关键字：
 
 除了上述四点以外，在存储方式.扩展性.查询性能上关系型与非关系型也都有着显著差异，总结如下：
 
-![](../../img/redis/kZP40dQ.png)
+![](../../img/redis/基础篇/kZP40dQ.png)
 
 - 存储方式
   - 关系型数据库基于磁盘进行存储，会有大量的磁盘IO，对性能有一定影响
@@ -176,11 +176,11 @@ yum install -y gcc tcl
 
 然后将课前资料提供的Redis安装包上传到虚拟机的任意目录：
 
-![](../../img/redis/SyjanS5.png)
+![](../../img/redis/基础篇/SyjanS5.png)
 
 例如，我放到了/usr/local/src 目录：
 
-![](../../img/redis/01DTNCf.png)
+![](../../img/redis/基础篇/01DTNCf.png)
 
 解压缩：
 
@@ -190,7 +190,7 @@ tar -xzf redis-6.2.6.tar.gz
 
 解压后：
 
-![image-20211211080339076](../../img/redis/8V6zvCD.png)
+![image-20211211080339076](../../img/redis/基础篇/8V6zvCD.png)
 
 进入redis目录：
 
@@ -212,7 +212,7 @@ make && make install
 
 默认的安装路径是在 `/usr/local/bin`目录下：
 
-![](../../img/redis/YSxkGm7.png)
+![](../../img/redis/基础篇/YSxkGm7.png)
 
 该目录已经默认配置到环境变量，因此可以在任意目录下运行这些命令。其中：
 
@@ -242,7 +242,7 @@ redis-server
 
 如图：
 
-![](../../img/redis/v7xWsqC.png)
+![](../../img/redis/基础篇/v7xWsqC.png)
 
 这种启动属于`前台启动`，会阻塞整个会话窗口，窗口关闭或者按下`CTRL + C`则Redis停止。不推荐使用。
 
@@ -250,7 +250,7 @@ redis-server
 
 如果要让Redis以`后台`方式启动，则必须修改Redis配置文件，就在我们之前解压的redis安装包下（`/usr/local/src/redis-6.2.6`），名字叫redis.conf：
 
-![image-20211211082225509](../../img/redis/image-20211211082225509.png)
+![image-20211211082225509](../../img/redis/基础篇/image-20211211082225509.png)
 
 我们先将这个配置文件备份一份：
 
@@ -398,7 +398,7 @@ redis-cli [options] [commonds]
 
 不指定commond时，会进入`redis-cli`的交互控制台：
 
-![](../../img/redis/OYYWPNo.png)
+![](../../img/redis/基础篇/OYYWPNo.png)
 
 
 
@@ -418,19 +418,19 @@ GitHub上的大神编写了Redis的图形化桌面客户端，地址：https://g
 
 在课前资料中可以找到Redis的图形化桌面客户端：
 
-![](../../img/redis/BZ4Agbi.png)
+![](../../img/redis/基础篇/BZ4Agbi.png)
 
 解压缩后，运行安装程序即可安装：
 
-![](../../img/redis/hguGHbX.png)
+![](../../img/redis/基础篇/hguGHbX.png)
 
 安装完成后，在安装目录下找到rdm.exe文件：
 
-![](../../img/redis/hwK5LQ8.png)
+![](../../img/redis/基础篇/hwK5LQ8.png)
 
 双击即可运行：
 
-![](../../img/redis/6hUqslY.png)
+![](../../img/redis/基础篇/6hUqslY.png)
 
 
 
@@ -438,19 +438,19 @@ GitHub上的大神编写了Redis的图形化桌面客户端，地址：https://g
 
 点击左上角的`连接到Redis服务器`按钮：
 
-![](../../img/redis/9qTGyoN.png)
+![](../../img/redis/基础篇/9qTGyoN.png)
 
 在弹出的窗口中填写Redis服务信息：
 
-![](../../img/redis/DshNnKC.png)
+![](../../img/redis/基础篇/DshNnKC.png)
 
 点击确定后，在左侧菜单会出现这个链接：
 
-![](../../img/redis/A2cOm7Q.png)
+![](../../img/redis/基础篇/A2cOm7Q.png)
 
 点击即可建立连接了。
 
-![](../../img/redis/ja8Fd9s.png)
+![](../../img/redis/基础篇/ja8Fd9s.png)
 
 
 
@@ -471,17 +471,17 @@ select 0
 
 Redis是一个key-value的数据库，key一般是String类型，不过value的类型多种多样：
 
-![1652887393157](../../img/redis/1652887393157.png)
+![1652887393157](../../img/redis/基础篇/1652887393157.png)
 
 **贴心小建议：命令不要死记，学会查询就好啦**
 
 Redis为了方便我们学习，将操作不同数据类型的命令也做了分组，在官网（ https://redis.io/commands ）可以查看到不同的命令：
 
-![1652887648826](../../img/redis/1652887648826.png)
+![1652887648826](../../img/redis/基础篇/1652887648826.png)
 
 当然我们也可以通过Help命令来帮助我们去查看命令
 
-![1652887748279](../../img/redis/1652887748279.png)
+![1652887748279](../../img/redis/基础篇/1652887748279.png)
 
 ### 4.2 Redis 通用命令
 
@@ -495,7 +495,7 @@ Redis为了方便我们学习，将操作不同数据类型的命令也做了分
 
 通过help [command] 可以查看一个命令的具体用法，例如：
 
-![1652887865189](../../img/redis/1652887865189.png)
+![1652887865189](../../img/redis/基础篇/1652887865189.png)
 
 课堂代码如下
 
@@ -618,7 +618,7 @@ String类型，也就是字符串类型，是Redis中最简单的存储类型。
 
 不管是那种格式，底层都是字节数组形式存储，只不过编码方式不同。字符串类型的最大空间不能超过512m
 
-![1652890121291](../../img/redis/1652890121291.png)
+![1652890121291](../../img/redis/基础篇/1652890121291.png)
 
 String的常见命令有：
 
@@ -760,7 +760,7 @@ Redis没有类似MySQL中的Table的概念，我们该如何区分不同类型�
 
 **Redis的key允许有多个单词形成层级结构，多个单词之间用':'隔开**，示例格式如下：
 
-![1652941631682](../../img/redis/1652941631682.png)
+![1652941631682](../../img/redis/基础篇/1652941631682.png)
 
 这个格式并非固定，也可以根据自己的需求来删除或添加词条。
 
@@ -779,7 +779,7 @@ Redis没有类似MySQL中的Table的概念，我们该如何区分不同类型�
 
 一旦我们向redis采用这样的方式存储，那么**在可视化界面中，redis会以层级结构来进行存储**，形成类似于这样的结构，更加方便Redis获取数据
 
-![1652941883537](../../img/redis/1652941883537.png)
+![1652941883537](../../img/redis/基础篇/1652941883537.png)
 
 
 
@@ -789,11 +789,11 @@ Hash类型，也叫散列，其value是一个无序字典，类似于Java中的H
 
 String结构是将对象序列化为JSON字符串后存储，当需要修改对象某个字段时很不方便：
 
-![1652941995945](../../img/redis/1652941995945.png)
+![1652941995945](../../img/redis/基础篇/1652941995945.png)
 
 **Hash结构可以将对象中的每个字段独立存储，可以针对单个字段做CRUD：**
 
-![1652942027719](../../img/redis/1652942027719.png)
+![1652942027719](../../img/redis/基础篇/1652942027719.png)
 
 **Hash类型的常见命令**
 
@@ -921,7 +921,7 @@ Redis中的List类型与Java中的LinkedList类似，可以看做是一个双向
 - LRANGE key star end：返回一段角标范围内的所有元素
 - BLPOP和BRPOP：与LPOP和RPOP类似，只不过在没有元素时等待指定时间，而不是直接返回nil。不可以设置移除的元素数量（count）
 
-![1652943604992](../../img/redis/1652943604992.png)
+![1652943604992](../../img/redis/基础篇/1652943604992.png)
 
 * LPUSH和RPUSH
 
@@ -1012,13 +1012,13 @@ Redis的Set结构与Java中的HashSet类似，可以看做是一个value为null�
 
 例如两个集合：s1和s2:
 
-![](../../img/redis/ha8x86R.png)
+![](../../img/redis/基础篇/ha8x86R.png)
 
 求交集：SINTER s1 s2
 
 求s1与s2的不同：SDIFF s1 s2
 
-![](../../img/redis/L9vTv2X.png)
+![](../../img/redis/基础篇/L9vTv2X.png)
 
 
 
@@ -1175,11 +1175,11 @@ Jack 85，Lucy 89，Rose 82，Tom 95，Jerry 78，Amy 92，Miles 76
 
 在Redis官网中提供了各种语言的客户端，地址：https://redis.io/docs/clients/
 
-![](../../img/redis/9f68ivq.png)
+![](../../img/redis/基础篇/9f68ivq.png)
 
 其中Java客户端也包含很多：
 
-![image-20220609102817435](../../img/redis/image-20220609102817435.png)
+![image-20220609102817435](../../img/redis/基础篇/image-20220609102817435.png)
 
 标记为❤的就是推荐使用的java客户端，包括：
 
@@ -1198,7 +1198,7 @@ Jack 85，Lucy 89，Rose 82，Tom 95，Jerry 78，Amy 92，Miles 76
 
 0）创建工程：
 
-![1652959239813](../../img/redis/1652959239813.png)
+![1652959239813](../../img/redis/基础篇/1652959239813.png)
 
 
 
@@ -1379,7 +1379,7 @@ SpringData是Spring中数据操作的模块，包含对各种数据库的集成�
 
 SpringDataRedis中提供了RedisTemplate工具类，其中封装了各种对Redis的操作。并且将不同数据类型的操作API封装到了不同的类型中：
 
-![1652976773295](../../img/redis/1652976773295.png)
+![1652976773295](../../img/redis/基础篇/1652976773295.png)
 
 
 
@@ -1506,13 +1506,13 @@ SpringDataRedis的使用步骤：
 
 RedisTemplate可以接收任意Object作为值写入Redis：
 
-![](../../img/redis/OEMcbuu.png)
+![](../../img/redis/基础篇/OEMcbuu.png)
 
 
 
 只不过写入前会把Object序列化为字节形式，默认是采用**JDK序列化**，得到的结果是这样的：
 
-![](../../img/redis/5FjtWk5.png)
+![](../../img/redis/基础篇/5FjtWk5.png)
 
 
 
@@ -1598,7 +1598,7 @@ class SpringDataRedisDemoApplicationTests {
 
 这里采用了JSON序列化来代替默认的JDK序列化方式。最终结果如图：
 
-![](../../img/redis/XOAq3cN.png)
+![](../../img/redis/基础篇/XOAq3cN.png)
 
 整体可读性有了很大提升，并且能将Java对象自动的序列化为JSON字符串，并且查询时能自动把JSON反序列化为Java对象。不过，其中记录了序列化时对应的class名称，目的是为了查询时实现自动反序列化。这会带来额外的内存开销。
 
@@ -1610,17 +1610,17 @@ class SpringDataRedisDemoApplicationTests {
 
 尽管JSON的序列化方式可以满足我们的需求，但依然存在一些问题，如图：
 
-![1653054602930](../../img/redis/1653054602930.png)
+![1653054602930](../../img/redis/基础篇/1653054602930.png)
 
 为了在反序列化时知道对象的类型，JSON序列化器会将类的class类型写入json结果中，存入Redis，会带来**额外的内存开销**。
 
 为了减少内存的消耗，我们可以采用手动序列化的方式，换句话说，就是不借助默认的序列化器，而是我们自己来控制序列化的动作，同时，我们**只采用String的序列化器**，这样，在存储value时，我们就不需要在内存中就不用多存储数据，从而节约我们的内存空间
 
-![1653054744832](../../img/redis/1653054744832.png)
+![1653054744832](../../img/redis/基础篇/1653054744832.png)
 
 这种用法比较普遍，因此SpringDataRedis就提供了RedisTemplate的子类：**StringRedisTemplate，它的key和value的序列化方式默认就是String方式**。
 
-![](../../img/redis/zXH6Qn6.png)
+![](../../img/redis/基础篇/zXH6Qn6.png)
 
 
 
@@ -1665,7 +1665,7 @@ class RedisStringTests {
 
 此时我们再来看一看存储的数据，小伙伴们就会发现那个class数据已经不在了，节约了我们的空间~
 
-![1653054945211](../../img/redis/1653054945211.png)
+![1653054945211](../../img/redis/基础篇/1653054945211.png)
 
 最后小总结：
 
