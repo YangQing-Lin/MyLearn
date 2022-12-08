@@ -629,6 +629,101 @@ public Result queryShopById(@PathVariable("id") Long id) {
 
 ![1653322190155](../../img/redis/实战篇/1653322190155.png)
 
+#### 2.1.3、添加店铺类型查询业务缓存
+
+![](../../img/redis/实战篇/缓存商铺列表.png)
+
+**ShopTypeController代码**
+
+```java
+@RestController
+@RequestMapping("/shop-type")
+public class ShopTypeController {
+    @Resource
+    private IShopTypeService typeService;
+
+    @GetMapping("list")
+    public Result queryTypeList() {
+//        List<ShopType> typeList = typeService
+//                .query().orderByAsc("sort").list();
+        return typeService.queryTypeList();
+    }
+}
+```
+
+**ShopTypeServiceImpl代码**
+
+使用String类型实现
+
+```java
+@Service
+public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType> implements IShopTypeService {
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Override
+    public Result queryTypeList() {
+        String key = CACHE_SHOPTYPE_KEY;
+        // 1.在redis里查询商铺列表
+        String shopList = stringRedisTemplate.opsForValue().get(key);
+        if (StrUtil.isNotBlank(shopList)) {
+            // 2.存在，直接返回
+            List<ShopType> typeList = JSONUtil.toList(shopList, ShopType.class);
+            return Result.ok(typeList);
+        }
+        // 3.不存在，去数据库里查询
+        List<ShopType> typeList = query().orderByAsc("sort").list();
+        if (typeList == null) {
+            // 4.数据库不存在，返回错误
+            return Result.fail("商铺列表请求失败，请稍后再试！");
+        }
+        // 5.数据库存在，写入redis
+        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(typeList));
+        // 6.返回
+        return Result.ok(typeList);
+    }
+}
+```
+
+使用List类型实现
+
+```java
+@Service
+public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType> implements IShopTypeService {
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Override
+    public Result queryTypeList() {
+        String key = CACHE_SHOPTYPE_KEY;
+        // 1.在redis里查询商铺列表
+        List<String> shopList = stringRedisTemplate.opsForList().range(key, 0, -1);
+        if (!shopList.isEmpty()) {
+            // 2.存在，直接返回
+            List<ShopType> typeList = new ArrayList<>();
+            for (String str : shopList) {
+                typeList.add(JSONUtil.toBean(str, ShopType.class));
+            }
+            return Result.ok(typeList);
+        }
+        // 3.不存在，去数据库里查询
+        List<ShopType> typeList = query().orderByAsc("sort").list();
+        if (typeList == null) {
+            // 4.数据库不存在，返回错误
+            return Result.fail("商铺列表请求失败，请稍后再试！");
+        }
+        // 5.数据库存在，写入redis
+        for (ShopType type : typeList) {
+            stringRedisTemplate.opsForList().rightPush(key, JSONUtil.toJsonStr(type));
+        }
+        // 6.返回
+        return Result.ok(typeList);
+    }
+}
+```
+
 
 
 ### 2.3 缓存更新策略
@@ -644,8 +739,6 @@ public Result queryShopById(@PathVariable("id") Long id) {
 ![1653322506393](../../img/redis/实战篇/1653322506393.png)
 
 #### 2.3.1 、数据库缓存不一致解决方案：
-
-
 
 由于我们的**缓存的数据源来自于数据库**,而数据库的**数据是会发生变化的**,因此,如果当数据库中**数据发生变化,而缓存却没有同步**,此时就会有**一致性问题存在**,其后果是:
 
@@ -707,7 +800,15 @@ Write Behind Caching Pattern ：调用者只操作缓存，其他线程去异步
 
 代码分析：通过之前的淘汰，我们确定了采用删除策略，来解决双写问题，当我们修改了数据之后，然后把缓存中的数据进行删除，查询时发现缓存中没有数据，则会从mysql中加载最新的数据，从而避免数据库和缓存不一致的问题
 
+**添加事务：删除缓存和更新数据库的操作需要同成功同失败，且由于是单体应用，直接加事务即可**
+
 ![1653325929549](../../img/redis/实战篇/1653325929549.png)
+
+**这里测试的时候使用postman调用后端修改店铺信息的接口**
+
+![](../../img/redis/实战篇/测试更新店铺信息数据一致.png)
+
+
 
 ### 2.5 缓存穿透问题的解决思路
 
