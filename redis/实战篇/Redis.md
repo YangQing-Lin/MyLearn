@@ -758,8 +758,6 @@ Write Behind Caching Pattern ：调用者只操作缓存，其他线程去异步
 
 操作缓存和数据库时有三个问题需要考虑：
 
-
-
 如果采用第一个方案，那么假设我们每次操作数据库后，都操作缓存，但是中间如果没有人查询，那么这个更新动作实际上只有最后一次生效，中间的更新动作意义并不大，我们可以把缓存删除，等待再次查询时，将缓存中的数据加载出来
 
 * 删除缓存还是更新缓存？
@@ -820,12 +818,22 @@ Write Behind Caching Pattern ：调用者只操作缓存，其他线程去异步
   * 优点：实现简单，维护方便
   * 缺点：
     * 额外的内存消耗
+    
     * 可能造成短期的不一致
+    
+      用户传来的id本来不存在，然后在redis里存下了整个id，并且他的value表示为null。但是后来，这个id的数据被数据库收录了，在redis的这个数据的TTL的期间，redis里的该id对应的数据和数据库里该id对应的数据是不一致的
+    
+      在我们更新数据库的时候，将这条数据在redis缓存起来，就可以避免这个问题
 * 布隆过滤
   * 优点：内存占用较少，没有多余key
   * 缺点：
     * 实现复杂
+    
+      不过redis自带了bitemap实现
+    
     * 存在误判可能
+    
+      因为哈希冲突，所以如果布隆过滤器判断该数据不存在，则真的不存在，但是如果判断存在，可能不一定存在
 
 
 
@@ -854,6 +862,50 @@ Write Behind Caching Pattern ：调用者只操作缓存，其他线程去异步
 
 
 ![1653327124561](../../img/redis/实战篇/1653327124561.png)
+
+**ShopServiceImpl.queryById代码修改**
+
+将空值写入redis
+
+如果redis查出来是空值，就直接返回错误
+
+```java
+@Override
+public Result queryById(Long id) {
+    String key = CACHE_SHOP_KEY + id;
+    // 1.从redis查询商铺缓存
+    String shopJson = stringRedisTemplate.opsForValue().get(key);
+    // 2.判断redis中该id对应的商铺是否存在
+    if (StrUtil.isNotBlank(shopJson)) {
+        // 3.存在，直接返回
+        Shop shop = JSONUtil.toBean(shopJson, Shop.class);
+        return Result.ok(shop);
+    }
+    // 解决缓存穿透：判断命中的是否是空值
+    if (shopJson != null) {
+        // 返回错误信息
+        return Result.fail("店铺信息不存在！");
+    }
+    // 4.不存在，根据id查询数据库
+    Shop shop = getById(id);
+    // 5。数据库里也不存在，返回错误
+    if (shop == null) {
+        // 解决缓存穿透：将空值写入redis
+        stringRedisTemplate.opsForValue().set(key, "", CACHE_NULL_TTL, TimeUnit.MINUTES);
+        return Result.fail("店铺不存在！");
+    }
+    // 6.数据库里存在，写入redis，设置超时时间实现缓存和数据库的双写一致
+    stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(shop), CACHE_SHOP_TTL, TimeUnit.MINUTES);
+    // 7.返回
+    return Result.ok(shop);
+}
+```
+
+**StrUtil.isNotBlank方法详解**
+
+![](../../img/redis/实战篇/StrUtil.isNotBlank方法.png)
+
+
 
 **小总结：**
 
