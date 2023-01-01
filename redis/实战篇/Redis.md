@@ -1091,7 +1091,7 @@ public class RedisData {
 
 **步骤二、**
 
-在**ShopServiceImpl** 新增此方法，利用单元测试进行缓存预热
+在**ShopServiceImpl** 新增此方法，**利用单元测试进行缓存预热**
 
 ![1653360807133](../../img/redis/实战篇/1653360807133.png)
 
@@ -1102,6 +1102,10 @@ public class RedisData {
 步骤三：正式代码
 
 **ShopServiceImpl**
+
+注意：在获取锁成功之后，应该再次检测redis缓存是否过期，做DoubleCheck，如果存在则无需重建缓存
+
+**因为可能某个线程在其他线程重建完成并释放锁之后刚好拿到锁，此时是不需要缓存重建的，如果不进行DoubleCheck就会重复进行缓存重建**
 
 ```java
 private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
