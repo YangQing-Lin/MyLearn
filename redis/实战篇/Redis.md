@@ -1354,7 +1354,7 @@ private CacheClient cacheClient;
 
 ## 3、优惠卷秒杀
 
-### 3.1 -全局唯一ID
+### 3.1 全局唯一ID
 
 每个店铺都可以发布优惠券：
 
@@ -1365,13 +1365,15 @@ private CacheClient cacheClient;
 * id的规律性太明显
 * 受单表数据量的限制
 
-场景分析：如果我们的id具有太明显的规则，用户或者说商业对手很容易猜测出来我们的一些敏感信息，比如商城在一天时间内，卖出了多少单，这明显不合适。
+场景分析：如果我们的id具有太明显的规则，用户或者说商业对手很容易猜测出来我们的一些**敏感信息**，比如商城在一天时间内，卖出了多少单，这明显不合适。
 
-场景分析二：随着我们商城规模越来越大，mysql的单表的容量不宜超过500W，数据量过大之后，我们要进行拆库拆表，但拆分表了之后，他们从逻辑上讲他们是同一张表，所以他们的id是不能一样的， 于是乎我们需要保证id的唯一性。
+场景分析二：随着我们商城规模越来越大，mysql的单表的容量不宜超过500W，数据量过大之后，我们要进行拆库拆表，但拆分表了之后，他们从逻辑上讲他们是同一张表，所以他们的id是不能一样的， 于是乎我们需要**保证id的唯一性**。
 
 **全局ID生成器**，是一种在分布式系统下用来生成全局唯一ID的工具，一般要满足下列特性：
 
 ![1653363100502](../../img/redis/实战篇/1653363100502.png)
+
+**递增性：为了提高数据库插入时的速度**
 
 为了增加ID的安全性，我们可以不直接使用Redis自增的数值，而是拼接一些其它信息：
 
@@ -1381,7 +1383,11 @@ private CacheClient cacheClient;
 
 序列号：32bit，秒内的计数器，支持每秒产生2^32个不同ID
 
-### 3.2 -Redis实现全局唯一Id
+### 3.2 Redis实现全局唯一Id
+
+注意：redis的key对应的value上限是 $2^{64}$，而全局唯一id中序列号是 $2^{32}$ ，因此不应该永远使用同一个key进行自增获得序列，可以在key中加入当前的日期，这样一天的数据量不足以超过这个 $2^{32}$ 的上限
+
+同时，这样做可以形成一个统计某天、某月或某年产生数据数量的效果
 
 ```java
 @Component
@@ -1421,11 +1427,11 @@ public class RedisIdWorker {
 
 测试类
 
-知识小贴士：关于countdownlatch
+**知识小贴士：关于countdownlatch**
 
 countdownlatch名为信号枪：主要的作用是同步协调在多线程的等待于唤醒问题
 
-我们如果没有CountDownLatch ，那么由于程序是异步的，当异步程序没有执行完时，主线程就已经执行完了，然后我们期望的是分线程全部走完之后，主线程再走，所以我们此时需要使用到CountDownLatch
+我们如果没有CountDownLatch ，那么由于程序是异步的（线程提交），当异步程序没有执行完时，主线程就已经执行完了，然后我们期望的是分线程全部走完之后，主线程再走，所以我们此时需要使用到CountDownLatch
 
 CountDownLatch 中有两个最重要的方法
 
@@ -1456,6 +1462,25 @@ void testIdWorker() throws InterruptedException {
     System.out.println("time = " + (end - begin));
 }
 ```
+
+**总结**：
+
+- 全局唯一ID生成策略
+
+  - UUID
+
+  - Redis自增
+
+  - snowflake算法
+
+  - 数据库自增
+
+    专门开一张表用于自增
+
+- Redis自增ID策略：
+
+  - 每天一个key，方便统计订单量，还可以限制自增的上限，不至于超过规定的上限 $2^{32}$
+  - ID构造是 时间戳 + 计数器
 
 ### 3.3 添加优惠卷
 
@@ -1537,6 +1562,7 @@ VoucherOrderServiceImpl
 
 ```java
 @Override
+@Transactional // 涉及两张表的新增，最好开启事务
 public Result seckillVoucher(Long voucherId) {
     // 1.查询优惠券
     SeckillVoucher voucher = seckillVoucherService.getById(voucherId);
@@ -1613,7 +1639,7 @@ public Result seckillVoucher(Long voucherId) {
 
 **乐观锁：**
 
-  乐观锁：会有一个版本号，每次操作数据会对版本号+1，再提交回数据时，会去校验是否比之前的版本大1 ，如果大1 ，则进行操作成功，这套机制的核心逻辑在于，如果在操作过程中，版本号只比原来大1 ，那么就意味着操作过程中没有人对他进行过修改，他的操作就是安全的，如果不大1，则数据被修改过，当然乐观锁还有一些变种的处理方式比如cas
+  乐观锁：会有一个**版本号**，每次操作数据会对版本号+1，再提交回数据时，会去校验是否比之前的版本大1 ，如果大1 ，则进行操作成功，这套机制的核心逻辑在于，如果在操作过程中，版本号只比原来大1 ，那么就意味着操作过程中没有人对他进行过修改，他的操作就是安全的，如果不大1，则数据被修改过，当然乐观锁还有一些变种的处理方式比如cas
 
   乐观锁的典型代表：就是cas，利用cas进行无锁化机制加锁，var5 是操作前读取的内存值，while中的var1+var2 是预估值，如果预估值 == 内存值，则代表中间没有被人修改过，此时就将新值去替换 内存值
 
@@ -1786,7 +1812,7 @@ public synchronized Result createVoucherOrder(Long voucherId) {
 }
 ```
 
-，但是这样添加锁，锁的粒度太粗了，在使用锁过程中，控制**锁粒度** 是一个非常重要的事情，因为如果锁的粒度太大，会导致每个线程进来都会锁住，所以我们需要去控制锁的粒度，以下这段代码需要修改为：
+，但是这样添加锁，**锁的粒度太大**了，在使用锁过程中，控制**锁粒度** 是一个非常重要的事情，因为如果锁的粒度太大，会导致每个线程进来都会锁住，所以我们需要去控制锁的粒度，以下这段代码需要修改为：
 intern() 这个方法是从常量池中拿到数据，如果我们直接使用userId.toString() 他拿到的对象实际上是不同的对象，new出来的对象，我们使用锁必须保证锁必须是同一把，所以我们需要使用intern()方法
 
 ```java
@@ -1839,11 +1865,33 @@ public  Result createVoucherOrder(Long voucherId) {
 
 ![1653383810643](../../img/redis/实战篇/1653383810643.png)
 
+这里获取代理对象，需要在pom.xml里增加配置
 
+```xml
+<dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+</dependency>
+```
+
+并且在spring的启动类加入注解，暴露事务，这样才可以获取到事务对象
+
+```java
+@EnableAspectJAutoProxy(exposeProxy = true) // 暴露代理对象，这样才可以获取
+@MapperScan("com.hmdp.mapper")
+@SpringBootApplication
+public class HmDianPingApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(HmDianPingApplication.class, args);
+    }
+}
+```
 
 ### 3.7 集群环境下的并发问题
 
 通过加锁可以解决在单机情况下的一人一单安全问题，但是在集群模式下就不行了。
+
+下面是使用idea模拟集群模式
 
 1、我们将服务启动两份，端口分别为8081和8082：
 
@@ -1852,6 +1900,8 @@ public  Result createVoucherOrder(Long voucherId) {
 2、然后修改nginx的conf目录下的nginx.conf文件，配置反向代理和负载均衡：
 
 ![1653373908620](../../img/redis/实战篇/1653373908620.png)
+
+现在，用户请求会在这两个节点上负载均衡，再次测试下是否存在线程安全问题
 
 **具体操作(略)**
 
