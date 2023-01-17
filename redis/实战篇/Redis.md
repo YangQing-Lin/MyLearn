@@ -2699,6 +2699,11 @@ VoucherOrderServiceImpl
 
 修改下单动作，现在我们去下单时，是通过lua表达式去原子执行判断逻辑，如果判断我出来不为0 ，则要么是库存不足，要么是重复下单，返回错误信息，如果是0，则把下单的逻辑保存到队列中去，然后异步执行
 
+注意：
+
+1. 从阻塞队列里取出元素时（take函数），如果队列头部没有元素，那么当前线程就会被阻塞
+2. 理论上不需要获取锁，因为事先使用redis做了并发判断，这里只是兜底方案
+
 ```java
 //异步处理线程池
 private static final ExecutorService SECKILL_ORDER_EXECUTOR = Executors.newSingleThreadExecutor();
@@ -2817,7 +2822,7 @@ private void init() {
 * 先利用Redis完成库存余量、一人一单判断，完成抢单业务
 * 再将下单业务放入阻塞队列，利用独立线程异步下单
 * 基于阻塞队列的异步秒杀存在哪些问题？
-  * 内存限制问题
+  * 内存限制问题，该阻塞队列使用的是jvm的内存
   * 数据安全问题
 
 
