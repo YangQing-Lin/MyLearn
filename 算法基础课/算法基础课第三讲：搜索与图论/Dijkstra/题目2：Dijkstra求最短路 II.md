@@ -8,7 +8,7 @@
 
 用堆优化之后，这一步的时间复杂度会变成 O(1) 的
 
-<img src="https://raw.githubusercontent.com/DaoZuQieXing/Learn/main/img/算法基础课/算法基础课第三讲：搜索与图论/堆优化Dijkstra算法.png" alt="system call" style="max-width: 70%">
+![](C:\Users\冬黎\OneDrive\桌面\Learn\img\算法基础课\算法基础课第三讲：搜索与图论\堆优化Dijkstra算法.png)
 
 -----------
 
